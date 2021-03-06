@@ -11,7 +11,6 @@ class SchemaAwareTypeValuesFixture extends TestFixture
     public $fields = [
         'id' => ['type' => 'integer'],
         'val' => ['type' => 'schemaawaretype', 'null' => false],
-        '_constraints' => ['primary' => ['type' => 'primary', 'columns' => ['id']]],
     ];
 
     public function init(): void
@@ -20,9 +19,11 @@ class SchemaAwareTypeValuesFixture extends TestFixture
 
         $this->records = [
             [
+                'id' => 1,
                 'val' => new SchemaAwareTypeValueObject('THIS TEXT SHOULD BE PROCESSED VIA A CUSTOM TYPE'),
             ],
             [
+                'id' => 2,
                 'val' => 'THIS TEXT ALSO SHOULD BE PROCESSED VIA A CUSTOM TYPE',
             ],
         ];

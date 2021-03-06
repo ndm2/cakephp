@@ -29,12 +29,12 @@ class SchemaAwareTypeIntegrationTest extends TestCase
 
         $this->assertSame(
             'this text has been processed via a custom type',
-            $table->get(1)->get('val')
+            $table->find()->where(['id' => 1])->firstOrFail()->get('val')
         );
 
         $this->assertSame(
             'this text also has been processed via a custom type',
-            $table->get(2)->get('val')
+            $table->find()->where(['id' => 2])->firstOrFail()->get('val')
         );
     }
 }
