@@ -205,6 +205,9 @@ class Sqlserver extends Driver
         ];
         if ($query instanceof Query) {
             $sql = $query->sql();
+
+            debug($sql);
+            debug($query->getValueBinder()->bindings());
             if (count($query->getValueBinder()->bindings()) > 2100) {
                 throw new InvalidArgumentException(
                     'Exceeded maximum number of parameters (2100) for prepared statements in Sql Server. ' .
@@ -218,7 +221,6 @@ class Sqlserver extends Driver
                 $options = [];
             }
         }
-
         /** @psalm-suppress PossiblyInvalidArgument */
         $statement = $this->_connection->prepare($sql, $options);
 
