@@ -27,6 +27,7 @@ class SchemaAwareTypeIntegrationTest extends TestCase
     {
         $table = $this->getTableLocator()->get('SchemaAwareTypeValues');
 
+        debug($table->find()->disableHydration()->toArray());
         $this->assertSame(
             'this text has been processed via a custom type',
             $table->find()->where(['id' => 1])->firstOrFail()->get('val')
