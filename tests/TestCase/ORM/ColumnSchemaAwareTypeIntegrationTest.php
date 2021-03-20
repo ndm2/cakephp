@@ -15,17 +15,10 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
 
     public $autoFixtures = false;
 
-    /**
-     * @var \Cake\Database\TypeInterface|null
-     */
-    public $charType;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->charType = TypeFactory::build('char');
-        TypeFactory::map('char', ColumnSchemaAwareType::class);
         TypeFactory::map('character', ColumnSchemaAwareType::class);
 
         $this->loadFixtures('ColumnSchemaAwareTypeValues');
@@ -36,7 +29,6 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
         parent::tearDown();
 
         $map = TypeFactory::getMap();
-        $map['char'] = $this->charType;
         unset($map['character']);
         TypeFactory::setMap($map);
     }
@@ -68,7 +60,7 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
 
         $type = $this
             ->getMockBuilder(ColumnSchemaAwareType::class)
-            ->setConstructorArgs(['char'])
+            ->setConstructorArgs(['character'])
             ->onlyMethods(['convertColumnDefinition'])
             ->getMock();
 
@@ -85,7 +77,6 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
             )
             ->willReturn(null);
 
-        TypeFactory::set('char', $type);
         TypeFactory::set('character', $type);
 
         $table->getSchema()->getColumn('val');

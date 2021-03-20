@@ -17,15 +17,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '7.4', '8.0']
+        php-version: ['8.0']
         db-type: [sqlite, mysql, pgsql]
         prefer-lowest: ['']
         include:
           - php-version: '7.2'
             db-type: 'mariadb'
-          - php-version: '7.2'
-            db-type: 'mysql'
-            prefer-lowest: 'prefer-lowest'
 
     services:
       redis:
@@ -112,11 +109,7 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mariadb' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export DB_URL='postgres://postgres:postgres@127.0.0.1/postgres'; fi
 
-        if [[ ${{ matrix.php-version }} == '7.4' ]]; then
-          export CODECOVERAGE=1 && vendor/bin/phpunit --verbose --coverage-clover=coverage.xml
-        else
-          vendor/bin/phpunit
-        fi
+        vendor/bin/phpunit --filter ColumnSchemaAware
 
     - name: Submit code coverage
       if: matrix.php-version == '7.4'
@@ -184,47 +177,4 @@ jobs:
       env:
         DB_URL: 'sqlserver://@(localdb)\MSSQLLocalDB/cakephp'
       run: |
-          vendor/bin/phpunit --verbose
-
-  cs-stan:
-    name: Coding Standard & Static Analysis
-    runs-on: ubuntu-18.04
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.3'
-        extensions: mbstring, intl, apcu, memcached, redis
-        tools: cs2pr
-        coverage: none
-
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-    - name: Get date part for cache key
-      id: key-date
-      run: echo "::set-output name=date::$(date +'%Y-%m')"
-
-    - name: Cache composer dependencies
-      uses: actions/cache@v1
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ steps.key-date.outputs.date }}-${{ hashFiles('composer.json') }}-${{ matrix.prefer-lowest }}
-
-    - name: composer install
-      run: composer stan-setup
-
-    - name: Run PHP CodeSniffer
-      run: vendor/bin/phpcs --report=checkstyle src/ tests/ | cs2pr
-
-    - name: Run psalm
-      if: success() || failure()
-      run: vendor/bin/psalm.phar --output-format=github
-
-    - name: Run phpstan
-      if: success() || failure()
-      run: vendor/bin/phpstan.phar analyse --error-format=github
+          vendor/bin/phpunit --verbose --filter ColumnSchemaAware

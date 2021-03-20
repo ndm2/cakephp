@@ -166,6 +166,7 @@ class PostgresSchemaDialect extends SchemaDialect
      */
     public function convertColumnDescription(TableSchema $schema, array $row): void
     {
+        debug($row);
         $field = $this->_convertColumn($row['type']);
 
         if ($field['type'] === TableSchema::TYPE_BOOLEAN) {

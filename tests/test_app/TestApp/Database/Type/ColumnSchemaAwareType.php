@@ -59,7 +59,7 @@ class ColumnSchemaAwareType extends BaseType implements ExpressionTypeInterface,
         $data = $schema->getColumn($column);
 
         $sql = $driver->quoteIdentifier($column);
-        $sql .= ' CHAR(255)';
+        $sql .= ' CHARACTER(255)';
 
         if (
             isset($data['null']) &&
