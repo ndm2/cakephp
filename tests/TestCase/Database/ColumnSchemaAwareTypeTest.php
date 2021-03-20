@@ -40,9 +40,9 @@ class ColumnSchemaAwareTypeTest extends TestCase
         $sql = $dialect->columnSql($schema, 'field');
 
         if ($this->connection->getDriver() instanceof Mysql) {
-            $this->assertEqualsSql("field TEXT NOT NULL COMMENT 'Lorem ipsum (schema aware)'", $sql);
+            $this->assertEqualsSql("field CHAR(255) NOT NULL COMMENT 'Lorem ipsum (schema aware)'", $sql);
         } else {
-            $this->assertEqualsSql('field TEXT NOT NULL', $sql);
+            $this->assertEqualsSql('field CHAR(255) NOT NULL', $sql);
         }
     }
 

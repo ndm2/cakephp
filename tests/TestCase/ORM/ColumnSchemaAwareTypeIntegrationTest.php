@@ -18,14 +18,15 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
     /**
      * @var \Cake\Database\TypeInterface|null
      */
-    public $textType;
+    public $charType;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->textType = TypeFactory::build('text');
-        TypeFactory::map('text', ColumnSchemaAwareType::class);
+        $this->charType = TypeFactory::build('char');
+        TypeFactory::map('char', ColumnSchemaAwareType::class);
+        TypeFactory::map('character', ColumnSchemaAwareType::class);
 
         $this->loadFixtures('ColumnSchemaAwareTypeValues');
     }
@@ -33,7 +34,11 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        TypeFactory::set('text', $this->textType);
+
+        $map = TypeFactory::getMap();
+        $map['char'] = $this->charType;
+        unset($map['character']);
+        TypeFactory::setMap($map);
     }
 
     public function testCustomTypesCanBeUsedInFixtures()
@@ -52,8 +57,37 @@ class ColumnSchemaAwareTypeIntegrationTest extends TestCase
     {
         $column = $this->getTableLocator()->get('ColumnSchemaAwareTypeValues')->getSchema()->getColumn('val');
 
-        $this->assertSame('text', $column['type']);
-        $this->assertSame(255, $column['length']);
+        $this->assertSame('string', $column['type']);
+        $this->assertSame(128, $column['length']);
         $this->assertSame('Custom schema aware type comment', $column['comment']);
+    }
+
+    public function testCustomTypeReceivesAllColumnDefinitionKeys()
+    {
+        $table = $this->getTableLocator()->get('ColumnSchemaAwareTypeValues');
+
+        $type = $this
+            ->getMockBuilder(ColumnSchemaAwareType::class)
+            ->setConstructorArgs(['char'])
+            ->onlyMethods(['convertColumnDefinition'])
+            ->getMock();
+
+        $type
+            ->expects($this->once())
+            ->method('convertColumnDefinition')
+            ->with(
+                [
+                    'length' => 255,
+                    'precision' => null,
+                    'scale' => null,
+                ],
+                $table->getConnection()->getDriver()
+            )
+            ->willReturn(null);
+
+        TypeFactory::set('char', $type);
+        TypeFactory::set('character', $type);
+
+        $table->getSchema()->getColumn('val');
     }
 }

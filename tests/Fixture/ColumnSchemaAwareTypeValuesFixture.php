@@ -10,7 +10,7 @@ class ColumnSchemaAwareTypeValuesFixture extends TestFixture
 {
     public $fields = [
         'id' => ['type' => 'integer'],
-        'val' => ['type' => 'text', 'null' => false, 'comment' => 'Fixture comment'],
+        'val' => ['type' => 'char', 'length' => 64, 'null' => false, 'comment' => 'Fixture comment'],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id']],
         ],

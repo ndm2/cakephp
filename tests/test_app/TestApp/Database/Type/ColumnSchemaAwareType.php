@@ -59,7 +59,7 @@ class ColumnSchemaAwareType extends BaseType implements ExpressionTypeInterface,
         $data = $schema->getColumn($column);
 
         $sql = $driver->quoteIdentifier($column);
-        $sql .= ' TEXT';
+        $sql .= ' CHAR(255)';
 
         if (
             isset($data['null']) &&
@@ -82,8 +82,8 @@ class ColumnSchemaAwareType extends BaseType implements ExpressionTypeInterface,
     public function convertColumnDefinition(array $definition, DriverInterface $driver): ?array
     {
         return [
-            'type' => $this->_name,
-            'length' => 255,
+            'type' => 'string',
+            'length' => 128,
             'comment' => 'Custom schema aware type comment',
         ];
     }
