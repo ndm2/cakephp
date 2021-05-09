@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Cake\Test\TestCase\ORM;
 
 use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Type\IntegerType;
+use Cake\Database\TypeFactory;
 use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
@@ -3485,5 +3487,101 @@ class MarshallerTest extends TestCase
             ],
         ];
         $this->assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * Tests that ID values are being bound with the correct type when loading associated records.
+     */
+    public function testUsingCorrectTypesForLoadingAssociatedByIds()
+    {
+        $vo = $this
+            ->getMockBuilder(\stdClass::class)
+            ->addMethods(['getValue'])
+            ->getMock();
+        $vo
+            ->expects($this->exactly(2))
+            ->method('getValue')
+            ->willReturnOnConsecutiveCalls(1, 2);
+
+        $type = $this
+            ->getMockBuilder(IntegerType::class)
+            ->onlyMethods(['toDatabase'])
+            ->getMock();
+
+        $type
+            ->expects($this->exactly(2))
+            ->method('toDatabase')
+            ->willReturnCallback(function ($value) {
+                return $value->getValue();
+            });
+
+        TypeFactory::set('marshaller_ids_type_test_type', $type);
+
+        $data = [
+            'title' => 'article',
+            'body' => 'some content',
+            'comments' => [
+                '_ids' => [$vo, $vo],
+            ],
+        ];
+
+        $this->articles->Comments->getSchema()->setColumnType('id', 'marshaller_ids_type_test_type');
+
+        $marshaller = new Marshaller($this->articles);
+        $article = $marshaller->one($data, ['associated' => ['Comments']]);
+
+        $this->articles->Comments->getSchema()->setColumnType('id', 'integer');
+
+        $this->assertEquals($article->comments[0], $this->comments->get(1));
+        $this->assertEquals($article->comments[1], $this->comments->get(2));
+    }
+
+    /**
+     * Tests that composite ID values are being bound with the correct type when loading associated records.
+     */
+    public function testUsingCorrectTypesForLoadingAssociatedByCompositeIds()
+    {
+        $vo = $this
+            ->getMockBuilder(\stdClass::class)
+            ->addMethods(['getValue'])
+            ->getMock();
+        $vo
+            ->expects($this->exactly(4))
+            ->method('getValue')
+            ->willReturnOnConsecutiveCalls(1, 1, 2, 2);
+
+        $type = $this
+            ->getMockBuilder(IntegerType::class)
+            ->onlyMethods(['toDatabase'])
+            ->getMock();
+
+        $type
+            ->expects($this->exactly(4))
+            ->method('toDatabase')
+            ->willReturnCallback(function ($value) {
+                return $value->getValue();
+            });
+
+        TypeFactory::set('marshaller_ids_type_test_type', $type);
+
+        $data = [
+            'title' => 'article',
+            'body' => 'some content',
+            'comments' => [
+                '_ids' => [[$vo, $vo], [$vo, $vo]],
+            ],
+        ];
+
+        $this->articles->Comments->setPrimaryKey(['id', 'id']);
+        $this->articles->Comments->getSchema()->setColumnType('id', 'marshaller_ids_type_test_type');
+
+        $marshaller = new Marshaller($this->articles);
+        $article = $marshaller->one($data, ['associated' => ['Comments']]);
+
+        $this->articles->Comments->setPrimaryKey('id');
+        $this->articles->Comments->getSchema()->setColumnType('id', 'integer');
+
+        $this->assertEquals($article->comments[0], $this->comments->get(1));
+        $this->assertEquals($article->comments[1], $this->comments->get(2));
     }
 }
