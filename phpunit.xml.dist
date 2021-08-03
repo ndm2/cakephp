@@ -8,7 +8,6 @@
     <testsuites>
         <testsuite name="cakephp">
             <directory>tests/TestCase/</directory>
-            <!-- Excludes are required in order to let DatabaseSuite decorate the tests -->
             <exclude>tests/TestCase/Database/</exclude>
             <exclude>tests/TestCase/ORM/</exclude>
         </testsuite>

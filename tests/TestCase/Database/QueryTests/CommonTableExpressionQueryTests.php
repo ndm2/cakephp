@@ -292,6 +292,21 @@ class CommonTableExpressionQueryTests extends TestCase
         // run insert
         $query->execute()->closeCursor();
 
+        $result = $this->connection->newQuery()
+            ->select('*')
+            ->from('articles')
+            ->execute();
+        debug($result->fetchAll('assoc'));
+        $result->closeCursor();
+
+        $result = $this->connection->newQuery()
+            ->select('*')
+            ->from('articles')
+            ->where(['id' => 4])
+            ->execute();
+        debug($result->fetch('assoc'));
+        $result->closeCursor();
+
         $expected = [
             'id' => '4',
             'author_id' => null,
