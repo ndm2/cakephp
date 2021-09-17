@@ -79,7 +79,8 @@ jobs:
       env:
         DB_URL: 'sqlserver://@(localdb)\MSSQLLocalDB/cakephp'
       run: |
-          php -r "echo 123;"
+          set CAKE_TEST_AUTOQUOTE=1
+          vendor/bin/phpunit --verbose --testsuite=database
 
     - name: Archive profiler results
       uses: actions/upload-artifact@v2
