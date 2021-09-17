@@ -6,12 +6,6 @@
     >
 
     <testsuites>
-        <testsuite name="cakephp">
-            <directory>tests/TestCase/</directory>
-            <!-- Excludes are required in order to let DatabaseSuite decorate the tests -->
-            <exclude>tests/TestCase/Database/</exclude>
-            <exclude>tests/TestCase/ORM/</exclude>
-        </testsuite>
         <testsuite name="database">
             <directory>tests/TestCase/Database/</directory>
             <!--<directory>tests/TestCase/ORM/</directory>-->
