@@ -79,4 +79,4 @@ jobs:
       env:
         DB_URL: 'sqlserver://@(localdb)\MSSQLLocalDB/cakephp'
       run: |
-        echo %TEMP%
+        echo $env:TEMP
