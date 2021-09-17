@@ -14,7 +14,7 @@
         </testsuite>
         <testsuite name="database">
             <directory>tests/TestCase/Database/</directory>
-            <directory>tests/TestCase/ORM/</directory>
+            <!--<directory>tests/TestCase/ORM/</directory>-->
         </testsuite>
     </testsuites>
 
