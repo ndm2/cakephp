@@ -37,8 +37,12 @@ class BoolType extends BaseType implements BatchCastingInterface
     public function toDatabase($value, DriverInterface $driver): ?bool
     {
         if ($value === true || $value === false || $value === null) {
+            debug('yup');
+
             return $value;
         }
+
+        debug('nope');
 
         if (in_array($value, [1, 0, '1', '0'], true)) {
             return (bool)$value;
