@@ -4101,7 +4101,7 @@ class QueryTest extends TestCase
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean')
             ->disableHydration()
-            ->disableHydration();
+            ->disableResultsCasting();
 
         debug($query->toArray());
 
