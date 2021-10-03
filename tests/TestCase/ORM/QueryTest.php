@@ -4084,8 +4084,8 @@ class QueryTest extends TestCase
         $query = \Cake\Datasource\ConnectionManager::get('test')
             ->newQuery()
             ->select([
-                'true' => ':true',
-                'false' => ':false',
+                'true_val' => ':true',
+                'false_val' => ':false',
             ])
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean');
@@ -4095,8 +4095,8 @@ class QueryTest extends TestCase
         $query = $this->getTableLocator()->get('Articles')
             ->find()
             ->select([
-                'true' => ':true',
-                'false' => ':false',
+                'true_val' => ':true',
+                'false_val' => ':false',
             ])
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean')
