@@ -45,7 +45,7 @@ jobs:
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres
 
     - name: Setup PostgreSQL 9.4
-      if: matrix.db-type == 'pgsql' && matrix.php-version != '7.2'
+      if: matrix.db-type == 'pgsql' && matrix.php-version != '8.0'
       run: docker run --rm --name=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=cakephp -p 5432:5432 -d postgres:9.4
 
     - uses: getong/mariadb-action@v1.1
