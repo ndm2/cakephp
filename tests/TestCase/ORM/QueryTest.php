@@ -4078,4 +4078,33 @@ class QueryTest extends TestCase
             ->disableResultsCasting()
             ->firstOrFail();
     }
+
+    public function testPgBoolTest(): void
+    {
+        $query = \Cake\Datasource\ConnectionManager::get('test')
+            ->newQuery()
+            ->select([
+                'true' => ':true',
+                'false' => ':false',
+            ])
+            ->bind(':true', true, 'boolean')
+            ->bind(':false', false, 'boolean');
+
+        debug($query->execute()->fetchAll('assoc'));
+
+        $query = $this->getTableLocator()->get('Articles')
+            ->find()
+            ->select([
+                'true' => ':true',
+                'false' => ':false',
+            ])
+            ->bind(':true', true, 'boolean')
+            ->bind(':false', false, 'boolean')
+            ->disableHydration()
+            ->disableHydration();
+
+        debug($query->toArray());
+
+        $this->assertTrue(true);
+    }
 }
