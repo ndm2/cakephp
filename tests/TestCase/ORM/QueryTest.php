@@ -4086,9 +4086,12 @@ class QueryTest extends TestCase
             ->select([
                 'true_val' => ':true',
                 'false_val' => ':false',
+                'am_i_a_letter' => ':bool = :string'
             ])
             ->bind(':true', true, 'boolean')
-            ->bind(':false', false, 'boolean');
+            ->bind(':false', false, 'boolean')
+            ->bind(':bool', true, 'boolean')
+            ->bind(':string', 't', 'string');
 
         debug($query->execute()->fetchAll('assoc'));
 
@@ -4097,9 +4100,12 @@ class QueryTest extends TestCase
             ->select([
                 'true_val' => ':true',
                 'false_val' => ':false',
+                'am_i_a_letter' => ':bool = :string'
             ])
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean')
+            ->bind(':bool', true, 'boolean')
+            ->bind(':string', 't', 'string')
             ->disableHydration()
             ->disableResultsCasting();
 
