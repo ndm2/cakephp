@@ -4084,9 +4084,9 @@ class QueryTest extends TestCase
         $query = \Cake\Datasource\ConnectionManager::get('test')
             ->newQuery()
             ->select([
-                'true_val' => ':true',
-                'false_val' => ':false',
-                'am_i_a_letter' => ':bool = :string'
+                'true_val' => 'CAST(:true AS boolean)',
+                'false_val' => 'CAST(:false AS boolean)',
+                'am_i_a_letter' => 'CAST(:bool AS boolean) = :string'
             ])
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean')
@@ -4098,9 +4098,9 @@ class QueryTest extends TestCase
         $query = $this->getTableLocator()->get('Articles')
             ->find()
             ->select([
-                'true_val' => ':true',
-                'false_val' => ':false',
-                'am_i_a_letter' => ':bool = :string'
+                'true_val' => 'CAST(:true AS boolean)',
+                'false_val' => 'CAST(:false AS boolean)',
+                'am_i_a_letter' => 'CAST(:bool AS boolean) = :string'
             ])
             ->bind(':true', true, 'boolean')
             ->bind(':false', false, 'boolean')
