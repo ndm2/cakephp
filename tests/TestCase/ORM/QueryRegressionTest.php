@@ -1753,8 +1753,7 @@ class QueryRegressionTest extends TestCase
     }
 
     /**
-     * Tests that tuple comparisons can use multiple fields and subqueries
-     * for an `IN` lookup of multiple results.
+     * Tests that tuple comparisons can use multiple fields and subqueries.
      *
      * This test is specifically relevant in the context of Sqlite and
      * Sqlserver, for which the tuple comparison will be transformed when
@@ -1768,8 +1767,8 @@ class QueryRegressionTest extends TestCase
 
         $query = $articles
             ->find()
-            ->select(['id', 'author_id'])
-            ->where(
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
                 new TupleComparison(
                     ['Articles.id', 'Articles.author_id'],
                     $articles
@@ -1779,10 +1778,191 @@ class QueryRegressionTest extends TestCase
                         ->where(['ArticlesAlias.author_id' => 1]),
                     [],
                     'IN'
+                ),
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    $articles
+                        ->subquery()
+                        ->select(['ArticlesAlias.id', 'ArticlesAlias.author_id'])
+                        ->from(['ArticlesAlias' => $articles->getTable()])
+                        ->where(['ArticlesAlias.id' => 1]),
+                    [],
+                    'NOT IN'
                 )
-            )
-            ->orderAsc('id')
+            ])
             ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
+
+        $expected = [
+            [
+                'id' => 3,
+                'author_id' => 1,
+            ],
+        ];
+        $this->assertSame($expected, $query->toArray());
+    }
+
+    public function testTupleComparisonWithCompositeKeysAndSingleResultSubqueries(): void
+    {
+        $articles = $this->getTableLocator()->get('Articles');
+
+        $query = $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    $articles
+                        ->subquery()
+                        ->select(['ArticlesAlias.id', 'ArticlesAlias.author_id'])
+                        ->from(['ArticlesAlias' => $articles->getTable()])
+                        ->where(['ArticlesAlias.id' => 1]),
+                    [],
+                    '='
+                ),
+            ])
+            ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
+
+        $expected = [
+            [
+                'id' => 1,
+                'author_id' => 1,
+            ],
+        ];
+        $this->assertSame($expected, $query->toArray());
+
+        $query = $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    $articles
+                        ->subquery()
+                        ->select(['ArticlesAlias.id', 'ArticlesAlias.author_id'])
+                        ->from(['ArticlesAlias' => $articles->getTable()])
+                        ->where(['ArticlesAlias.id' => 2]),
+                    [],
+                    '!='
+                ),
+            ])
+            ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
+
+        $expected = [
+            [
+                'id' => 1,
+                'author_id' => 1,
+            ],
+            [
+                'id' => 3,
+                'author_id' => 1,
+            ],
+        ];
+        $this->assertSame($expected, $query->toArray());
+    }
+
+    /**
+     * Tests that tuple comparisons can use multiple fields and arrays of
+     * values.
+     *
+     * This test is specifically relevant in the context of Sqlite and
+     * Sqlserver, for which the tuple comparison will be transformed when
+     * composite keys are used.
+     *
+     * @see \Cake\Database\Driver\TupleComparisonTranslatorTrait::_transformTupleComparison()
+     */
+    public function testTupleComparisonWithCompositeKeysAndArrays(): void
+    {
+        $articles = $this->getTableLocator()->get('Articles');
+
+        $query = $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    [[1, 1], [3, 1]],
+                    ['integer', 'integer'],
+                    'IN'
+                ),
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    [[1, 1]],
+                    ['integer', 'integer'],
+                    'NOT IN'
+                )
+            ])
+            ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
+
+        $expected = [
+            [
+                'id' => 3,
+                'author_id' => 1,
+            ],
+        ];
+        $this->assertSame($expected, $query->toArray());
+    }
+
+    public function testTupleComparisonWithCompositeKeysAndSingleTupleArrays(): void
+    {
+        $articles = $this->getTableLocator()->get('Articles');
+
+        $query = $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    [1, 1],
+                    ['integer', 'integer'],
+                    '='
+                ),
+            ])
+            ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
+
+        $expected = [
+            [
+                'id' => 1,
+                'author_id' => 1,
+            ],
+        ];
+        $this->assertSame($expected, $query->toArray());
+
+        $query = $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    [2, 3],
+                    ['integer', 'integer'],
+                    '!='
+                ),
+            ])
+            ->disableHydration();
+        debug(__FUNCTION__);
+        debug($articles->getConnection()->getDriver()->isAutoQuotingEnabled());
+        debug($query->sql());
+        debug($query->getValueBinder()->bindings());
 
         $expected = [
             [
