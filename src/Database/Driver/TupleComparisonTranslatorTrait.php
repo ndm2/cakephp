@@ -59,17 +59,21 @@ trait TupleComparisonTranslatorTrait
         $true = new QueryExpression('1');
 
         if ($value instanceof Query) {
-            $op = $expression->getOperator();
-            if (strtolower($op) === 'in') {
-                $op = '=';
-            }
             $selected = array_values($value->clause('select'));
             foreach ($fields as $i => $field) {
-                $value->andWhere(["$field $op" => new IdentifierExpression($selected[$i])]);
+                $value->andWhere([$field => new IdentifierExpression($selected[$i])]);
             }
             $value->select($true, true);
+
+            if (in_array(strtolower($expression->getOperator()), ['in', '='])) {
+                $value = (new QueryExpression())->exists($value);
+            } else {
+                $value = (new QueryExpression())->notExists($value);
+            }
+            $expression->setValue($value);
+
             $expression->setField($true);
-            $expression->setOperator('=');
+            $expression->setOperator('= 1 AND');
 
             return;
         }
@@ -100,8 +104,14 @@ trait TupleComparisonTranslatorTrait
         }
         $surrogate->where($conditions, $typeMap);
 
+        if (in_array(strtolower($expression->getOperator()), ['in', '='])) {
+            $value = (new QueryExpression())->exists($surrogate);
+        } else {
+            $value = (new QueryExpression())->notExists($surrogate);
+        }
+        $expression->setValue($value);
+
         $expression->setField($true);
-        $expression->setValue($surrogate);
-        $expression->setOperator('=');
+        $expression->setOperator('= 1 AND');
     }
 }
