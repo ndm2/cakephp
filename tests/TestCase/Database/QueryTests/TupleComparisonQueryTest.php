@@ -186,8 +186,8 @@ class TupleComparisonQueryTest extends TestCase
             $driver instanceof Mysql ||
             $driver instanceof Postgres
         ) {
-            #$this->expectException(PDOException::class);
-            #$this->expectExceptionMessageMatches('/cardinality violation/i');
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches('/cardinality violation/i');
         } else {
             // Due to the way tuple comparisons are being translated, the DBMS will
             // not run into a cardinality violation scenario.
@@ -196,36 +196,24 @@ class TupleComparisonQueryTest extends TestCase
             );
         }
 
-        try {
-            if ($driver instanceof Postgres) {
-                $articles->getConnection()->createSavePoint(__FUNCTION__);
-            }
-
-            $articles
-                ->find()
-                ->select(['Articles.id', 'Articles.author_id'])
-                ->where([
-                    new TupleComparison(
-                        ['Articles.id', 'Articles.author_id'],
-                        $articles
-                            ->subquery()
-                            ->select(['ArticlesAlias.id', 'ArticlesAlias.author_id'])
-                            ->from(['ArticlesAlias' => $articles->getTable()])
-                            ->where(['ArticlesAlias.author_id' => 1]),
-                        [],
-                        '='
-                    ),
-                ])
-                ->orderAsc('Articles.id')
-                ->disableHydration()
-                ->toArray();
-        } catch (\Exception $e) {
-            if ($driver instanceof Postgres) {
-                $articles->getConnection()->rollbackSavepoint(__FUNCTION__);
-            }
-
-            $this->assertInstanceOf(PDOException::class, $e);
-        }
+        $articles
+            ->find()
+            ->select(['Articles.id', 'Articles.author_id'])
+            ->where([
+                new TupleComparison(
+                    ['Articles.id', 'Articles.author_id'],
+                    $articles
+                        ->subquery()
+                        ->select(['ArticlesAlias.id', 'ArticlesAlias.author_id'])
+                        ->from(['ArticlesAlias' => $articles->getTable()])
+                        ->where(['ArticlesAlias.author_id' => 1]),
+                    [],
+                    '='
+                ),
+            ])
+            ->orderAsc('Articles.id')
+            ->disableHydration()
+            ->toArray();
     }
 
     public function testEqualWithSingleResultSubquery(): void
