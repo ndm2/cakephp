@@ -196,6 +196,10 @@ class TupleComparisonQueryTest extends TestCase
             );
         }
 
+        if ($driver instanceof Postgres) {
+            $articles->getConnection()->createSavePoint('testEqualWithMultiResultSubquery');
+        }
+
         $articles
             ->find()
             ->select(['Articles.id', 'Articles.author_id'])
