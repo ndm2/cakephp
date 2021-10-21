@@ -110,5 +110,5 @@ jobs:
         if [[ ${{ matrix.db-type }} == 'mariadb' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp'; fi
         if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export DB_URL='postgres://postgres:postgres@127.0.0.1/postgres'; fi
 
-        vendor/bin/phpunit --filter "/TupleComparisonQueryTest/"
-        CAKE_TEST_AUTOQUOTE=1 vendor/bin/phpunit --testsuite=database --filter "/TupleComparisonQueryTest/"
+        vendor/bin/phpunit
+        CAKE_TEST_AUTOQUOTE=1 vendor/bin/phpunit --testsuite=database
