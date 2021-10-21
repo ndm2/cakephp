@@ -197,6 +197,10 @@ class TupleComparisonQueryTest extends TestCase
         }
 
         try {
+            if ($driver instanceof Postgres) {
+                $articles->getConnection()->createSavePoint(__FUNCTION__);
+            }
+
             $articles
                 ->find()
                 ->select(['Articles.id', 'Articles.author_id'])
@@ -216,6 +220,10 @@ class TupleComparisonQueryTest extends TestCase
                 ->disableHydration()
                 ->toArray();
         } catch (\Exception $e) {
+            if ($driver instanceof Postgres) {
+                $articles->getConnection()->rollbackSavepoint(__FUNCTION__);
+            }
+
             $this->assertInstanceOf(PDOException::class, $e);
         }
     }
