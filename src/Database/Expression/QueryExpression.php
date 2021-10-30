@@ -829,11 +829,11 @@ class QueryExpression implements ExpressionInterface, Countable
             );
         }
 
-        if ($operator === 'is' && $value !== null) {
+        if ($operator === 'is' && $value !== null && !($value instanceof ExpressionInterface)) {
             $operator = '=';
         }
 
-        if ($operator === 'is not' && $value !== null) {
+        if ($operator === 'is not' && $value !== null && !($value instanceof ExpressionInterface)) {
             $operator = '!=';
         }
 

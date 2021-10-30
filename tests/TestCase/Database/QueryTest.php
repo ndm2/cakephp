@@ -4084,6 +4084,58 @@ class QueryTest extends TestCase
         $this->assertNotEquals(['name' => 'larry'], $results->fetch('assoc'));
     }
 
+    public function testIsWithExpressions(): void
+    {
+        $sql = (new Query($this->connection))
+            ->select(['name'])
+            ->from(['authors'])
+            ->where(['name IS' => new IdentifierExpression('nullable_column')])
+            ->sql();
+        $this->assertQuotedQuery('WHERE <name> is <nullable_column>', $sql, !$this->autoQuote);
+
+        $stmt = $this->connection->update('authors', ['name' => null], ['name' => 'larry']);
+        $this->assertSame(1, $stmt->count());
+        $stmt->closeCursor();
+
+        $results = (new Query($this->connection))
+            ->select(['id', 'name'])
+            ->from(['authors'])
+            ->where(['name IS' => new QueryExpression('NULL')])
+            ->execute();
+        $this->assertCount(1, $results);
+        $this->assertEquals(['id' => '3', 'name' => null], $results->fetch('assoc'));
+    }
+
+    public function testIsNotWithExpressions(): void
+    {
+        $sql = (new Query($this->connection))
+            ->select(['name'])
+            ->from(['authors'])
+            ->where(['name IS NOT' => new IdentifierExpression('nullable_column')])
+            ->sql();
+        $this->assertQuotedQuery('WHERE <name> is not <nullable_column>', $sql, !$this->autoQuote);
+
+        $stmt = $this->connection->update('authors', ['name' => null], ['name' => 'larry']);
+        $this->assertSame(1, $stmt->count());
+        $stmt->closeCursor();
+
+        $results = (new Query($this->connection))
+            ->select(['id', 'name'])
+            ->from(['authors'])
+            ->where(['name IS NOT' => new QueryExpression('NULL')])
+            ->orderAsc('id')
+            ->execute();
+        $this->assertCount(3, $results);
+        $this->assertEquals(
+            [
+                ['id' => '1', 'name' => 'mariano'],
+                ['id' => '2', 'name' => 'nate'],
+                ['id' => '4', 'name' => 'garrett'],
+            ],
+            $results->fetchAll('assoc')
+        );
+    }
+
     /**
      * Performs the simple update query and verifies the row count.
      */
