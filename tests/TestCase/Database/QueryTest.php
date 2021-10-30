@@ -1165,7 +1165,7 @@ class QueryTest extends TestCase
     }
 
     /**
-     * Tests that calling "in" and "notIn" will cast the passed values to an array
+     * Tests that calling "in" and "notIn" will cast the passed values to an array when needed
      */
     public function testInValueCast(): void
     {
@@ -1226,10 +1226,55 @@ class QueryTest extends TestCase
             ->execute();
         $this->assertCount(5, $result);
         $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(function ($exp) {
+                return $exp->in('id', (new Query($this->connection))->select(1));
+            })
+            ->execute();
+        $this->assertCount(1, $result);
+        $this->assertEquals(['id' => 1], $result->fetch('assoc'));
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(function ($exp) {
+                return $exp->notIn('id', (new Query($this->connection))->select(1));
+            })
+            ->execute();
+        $this->assertCount(5, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(function ($exp) {
+                return $exp->in('id', [(new Query($this->connection))->select(1), 2]);
+            })
+            ->execute();
+        $this->assertCount(2, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(function ($exp) {
+                return $exp->notIn('id', [(new Query($this->connection))->select(1), 2]);
+            })
+            ->execute();
+        $this->assertCount(4, $result);
+        $result->closeCursor();
     }
 
     /**
-     * Tests that calling "in" and "notIn" will cast the passed values to an array
+     * Tests that calling "in" and "notIn" will cast the passed values to an array when needed
      */
     public function testInValueCast2(): void
     {
@@ -1250,6 +1295,43 @@ class QueryTest extends TestCase
             ->where(['created NOT IN' => '2007-03-18 10:45:23'])
             ->execute();
         $this->assertCount(5, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(['id IN' => (new Query($this->connection))->select(1)])
+            ->execute();
+        $this->assertCount(1, $result);
+        $this->assertEquals(['id' => 1], $result->fetch('assoc'));
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(['id NOT IN' => (new Query($this->connection))->select(1)])
+            ->execute();
+        $this->assertCount(5, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(['id IN' => [(new Query($this->connection))->select(1), 2]])
+            ->execute();
+        $this->assertCount(2, $result);
+        $result->closeCursor();
+
+        $query = new Query($this->connection);
+        $result = $query
+            ->select(['id'])
+            ->from('comments')
+            ->where(['id NOT IN' => [(new Query($this->connection))->select(1), 2]])
+            ->execute();
+        $this->assertCount(4, $result);
         $result->closeCursor();
     }
 

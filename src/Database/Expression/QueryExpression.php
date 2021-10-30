@@ -323,7 +323,9 @@ class QueryExpression implements ExpressionInterface, Countable
         }
         $type = $type ?: 'string';
         $type .= '[]';
-        $values = $values instanceof ExpressionInterface ? $values : (array)$values;
+        if (!is_array($values) && (!$values instanceof Query)) {
+            $values = [$values];
+        }
 
         return $this->add(new ComparisonExpression($field, $values, $type, 'IN'));
     }
@@ -396,7 +398,9 @@ class QueryExpression implements ExpressionInterface, Countable
         }
         $type = $type ?: 'string';
         $type .= '[]';
-        $values = $values instanceof ExpressionInterface ? $values : (array)$values;
+        if (!is_array($values) && (!$values instanceof Query)) {
+            $values = [$values];
+        }
 
         return $this->add(new ComparisonExpression($field, $values, $type, 'NOT IN'));
     }

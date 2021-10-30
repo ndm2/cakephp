@@ -19,7 +19,9 @@ namespace Cake\Test\TestCase\Database\Expression;
 use Cake\Database\Expression\ComparisonExpression;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Database\Expression\QueryExpression;
+use Cake\Database\Query;
 use Cake\Database\ValueBinder;
+use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -39,13 +41,74 @@ class ComparisonExpressionTest extends TestCase
         $this->assertEqualsSql('field = other_field', $expr->sql(new ValueBinder()));
 
         $expr = new ComparisonExpression(new IdentifierExpression('field'), new QueryExpression(['other_field']));
-        $this->assertEqualsSql('field = (other_field)', $expr->sql(new ValueBinder()));
+        $this->assertEqualsSql('field = other_field', $expr->sql(new ValueBinder()));
 
         $expr = new ComparisonExpression(new IdentifierExpression('field'), 'value');
         $this->assertEqualsSql('field = :c0', $expr->sql(new ValueBinder()));
 
         $expr = new ComparisonExpression(new QueryExpression(['field']), new IdentifierExpression('other_field'));
         $this->assertEqualsSql('field = other_field', $expr->sql(new ValueBinder()));
+    }
+
+    public function testExpressionWrappingAndBinding(): void
+    {
+        $expr = new ComparisonExpression(
+            'field',
+            (new Query(ConnectionManager::get('test')))->select(1),
+            null,
+            'IN'
+        );
+        $binder = new ValueBinder();
+        $this->assertEqualsSql('field IN (SELECT 1)', $expr->sql($binder));
+        $this->assertEmpty($binder->bindings());
+
+        $expr = new ComparisonExpression(
+            'field',
+            [(new Query(ConnectionManager::get('test')))->select('1'), 2],
+            'integer[]',
+            'IN'
+        );
+        $binder = new ValueBinder();
+        $this->assertEqualsSql('field IN ((SELECT 1),:c0)', $expr->sql($binder));
+        $this->assertSame(
+            [
+                ':c0' => [
+                    'value' => 2,
+                    'type' => 'integer',
+                    'placeholder' => 'c0',
+                ],
+            ],
+            $binder->bindings()
+        );
+
+        $expr = new ComparisonExpression(
+            'field',
+            new QueryExpression('(1, 2)'),
+            null,
+            'IN'
+        );
+        $binder = new ValueBinder();
+        $this->assertEqualsSql('field IN (1, 2)', $expr->sql($binder));
+        $this->assertEmpty($binder->bindings());
+
+        $expr = new ComparisonExpression(
+            'field',
+            [new QueryExpression('1'), 2],
+            'integer[]',
+            'IN'
+        );
+        $binder = new ValueBinder();
+        $this->assertEqualsSql('field IN (1,:c0)', $expr->sql($binder));
+        $this->assertSame(
+            [
+                ':c0' => [
+                    'value' => 2,
+                    'type' => 'integer',
+                    'placeholder' => 'c0',
+                ],
+            ],
+            $binder->bindings()
+        );
     }
 
     /**

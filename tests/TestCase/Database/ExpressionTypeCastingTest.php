@@ -50,7 +50,7 @@ class ExpressionTypeCastingTest extends TestCase
         $comparison = new ComparisonExpression('field', 'the thing', 'test', '=');
         $binder = new ValueBinder();
         $sql = $comparison->sql($binder);
-        $this->assertSame('field = (CONCAT(:param0, :param1))', $sql);
+        $this->assertSame('field = CONCAT(:param0, :param1)', $sql);
         $this->assertSame('the thing', $binder->bindings()[':param0']['value']);
 
         $found = false;

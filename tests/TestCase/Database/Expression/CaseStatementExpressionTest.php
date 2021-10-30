@@ -93,7 +93,7 @@ class CaseStatementExpressionTest extends TestCase
         $valueBinder = new ValueBinder();
         $sql = $expression->sql($valueBinder);
         $this->assertSame(
-            'CASE WHEN Table.column = (CUSTOM(:param0)) THEN CUSTOM(:param1) ELSE CUSTOM(:param2) END',
+            'CASE WHEN Table.column = CUSTOM(:param0) THEN CUSTOM(:param1) ELSE CUSTOM(:param2) END',
             $sql
         );
     }

@@ -18,6 +18,7 @@ namespace Cake\Database\Expression;
 
 use Cake\Database\Exception\DatabaseException;
 use Cake\Database\ExpressionInterface;
+use Cake\Database\Query;
 use Cake\Database\Type\ExpressionTypeCasterTrait;
 use Cake\Database\ValueBinder;
 use Closure;
@@ -146,11 +147,11 @@ class ComparisonExpression implements ExpressionInterface, FieldInterface
             $field = $field->sql($binder);
         }
 
-        if ($this->_value instanceof IdentifierExpression) {
-            $template = '%s %s %s';
+        if ($this->_value instanceof Query) {
+            $template = '%s %s (%s)';
             $value = $this->_value->sql($binder);
         } elseif ($this->_value instanceof ExpressionInterface) {
-            $template = '%s %s (%s)';
+            $template = '%s %s %s';
             $value = $this->_value->sql($binder);
         } else {
             [$template, $value] = $this->_stringExpression($binder);
@@ -268,7 +269,11 @@ class ComparisonExpression implements ExpressionInterface, FieldInterface
         $parts = [];
         if (is_array($value)) {
             foreach ($this->_valueExpressions as $k => $v) {
-                $parts[$k] = $v->sql($binder);
+                if ($v instanceof Query) {
+                    $parts[$k] = sprintf('(%s)', $v->sql($binder));
+                } else {
+                    $parts[$k] = $v->sql($binder);
+                }
                 unset($value[$k]);
             }
         }
