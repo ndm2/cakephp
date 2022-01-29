@@ -155,9 +155,9 @@ class BelongsToMany extends Association
     /**
      * Order in which target records should be returned
      *
-     * @var mixed
+     * @var \Cake\Database\ExpressionInterface|\Closure|array|string|null
      */
-    protected mixed $_sort = null;
+    protected ExpressionInterface|Closure|array|string|null $_sort = null;
 
     /**
      * Sets the name of the field representing the foreign key to the target table.
