@@ -139,6 +139,7 @@ class TestFixture implements FixtureInterface
         try {
             $name = Inflector::camelize($this->table);
             $ormTable = $this->fetchTable($name, ['connection' => $db]);
+            $this->getTableLocator()->remove($name);
 
             /** @var \Cake\Database\Schema\TableSchema $schema */
             $schema = $ormTable->getSchema();
