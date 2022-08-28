@@ -42,34 +42,10 @@ use JsonSerializable;
  * required.
  *
  * @property \Cake\ORM\Table $_repository Instance of a table object this query is bound to.
- * @method mixed clause(string $name)
- * @method \Cake\Database\Expression\QueryExpression newExpr(\Cake\Database\ExpressionInterface|array|string|null $rawExpression = null)
- * @method \Cake\Database\FunctionsBuilder func()
- * @method $this setValueBinder(?\Cake\Database\ValueBinder $binder)
- * @method \Cake\Database\ValueBinder getValueBinder()
- * @method \Cake\Database\TypeMap getTypeMap()
- * @method \Cake\Database\TypeMap getSelectTypeMap()
- * @method array<string, string> getDefaultTypes()
- * @method $this from(array|string $tables = [], bool $overwrite = false)
- * @method $this select(\Cake\Database\ExpressionInterface|\Closure|array|string|float|int $fields = [], bool $overwrite = false)
- * @method $this group(\Cake\Database\ExpressionInterface|array|string $fields, bool $overwrite = false)
- * @method $this union(\Cake\Database\QueryInterface|string $query, bool $overwrite = false)
- * @method $this unionAll(\Cake\Database\QueryInterface|string $query, bool $overwrite = false)
- * @method $this order(\Cake\Database\ExpressionInterface|\Closure|array|string $fields, bool $overwrite = false)
- * @method $this orderAsc(\Cake\Database\ExpressionInterface|\Closure|array|string $fields, bool $overwrite = false)
- * @method $this orderDesc(\Cake\Database\ExpressionInterface|\Closure|array|string $fields, bool $overwrite = false)
- * @method $this setSelectTypeMap(\Cake\Database\TypeMap $typeMap)
- * @method $this enableResultsCasting()
- * @method $this disableResultsCasting()
- * @method $this decorateResults(?\Closure $callback, bool $overwrite = false)
- * @method $this delete(?string $table = null)
- * @method $this join(array|string $tables, array $types = [], bool $overwrite = false)
- * @method $this innerJoin(array|string $table, \Cake\Database\ExpressionInterface|\Closure|array|string $conditions = [], array $types = [])
- * @method $this update(\Cake\Database\ExpressionInterface|string $table)
- * @method $this set(\Cake\Database\Expression\QueryExpression|\Closure|array|string $key, mixed $value = null, array|string $types = [])
- * @method $this values(\Cake\Database\Expression\ValuesExpression|\Cake\Database\QueryInterface|array $data)
- * @method $this insert(array $columns, array $types = [])
- * @method $this into(string $table)
+ * @mixin \Cake\Database\Query\SelectQuery
+ * @mixin \Cake\Database\Query\InsertQuery
+ * @mixin \Cake\Database\Query\UpdateQuery
+ * @mixin \Cake\Database\Query\DeleteQuery
  */
 class Query implements DatabaseQueryInterface, JsonSerializable, QueryInterface
 {
