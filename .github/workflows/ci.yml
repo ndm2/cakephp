@@ -59,7 +59,7 @@ jobs:
         mysql database: 'cakephp'
         mysql root password: 'root'
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -145,7 +145,7 @@ jobs:
       PHP_VERSION: '8.1'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Get date part for cache key
       id: key-date
